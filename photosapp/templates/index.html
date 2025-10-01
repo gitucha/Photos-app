@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+  <a href="{% url 'upload' %}" class="px-3 py-2 bg-blue-500 text-white rounded">Upload Photo</a>
+  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
+    {% for photo in photos %}
+      <a href="{% url 'photo-detail' photo.pk %}" class="bg-white rounded shadow">
+        <img src="{{ photo.image.url }}" class="w-full h-40 object-cover rounded">
+        <div class="p-2">
+          <h3 class="font-semibold">{{ photo.title }}</h3>
+          <p class="text-sm text-gray-500">by {{ photo.owner.username }}</p>
+        </div>
+      </a>
+    {% empty %}
+      <p>No photos yet.</p>
+    {% endfor %}
+  </div>
+{% endblock %}
