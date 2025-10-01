@@ -1,12 +1,13 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Photo, Profile
 from .forms import PhotoForm, ProfileForm, SignUpForm
 
 # Create your views here.
 def home(request):
-    return render(request, 'photosapp/index.html')
+    return render(request, 'index.html')
 
 def signup(request):
     if request.method == 'POST':
@@ -16,7 +17,23 @@ def signup(request):
             return redirect('login')
     else:
         form = SignUpForm()
-    return render(request, 'photosapp/signup.html', {'form': form})
+    return render(request, 'signup.html', {'form': form})
+
+def login(request):
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            auth_login(request, user)
+            return redirect('index')
+        else:
+            return render(request, 'login.html', {'error': 'Invalid username or password'})
+        
+def logout(request):
+    if request.method == 'POST':
+        auth_logout(request)
+        return redirect('index')    
 
 @login_required
 def profile_edit(request):
@@ -27,7 +44,7 @@ def profile_edit(request):
             return redirect('profile_edit')
     else:
         form = ProfileForm(instance=request.user.profile)
-    return render(request, 'photosapp/profile_edit.html', {'form': form})
+    return render(request, 'profile_edit.html', {'form': form})
 
 @login_required
 def upload_photo(request):
@@ -40,11 +57,11 @@ def upload_photo(request):
             return redirect('photo_list')
     else:
         form = PhotoForm()
-    return render(request, 'photosapp/upload_photo.html', {'form': form})
+    return render(request, 'upload_photo.html', {'form': form})
 
 def photo_detail(request, pk):
     photo = get_object_or_404(Photo, pk=pk)
-    return render(request, 'photosapp/photo_detail.html', {'photo': photo})
+    return render(request, 'photo_detail.html', {'photo': photo})
 
 @login_required
 def like_photo(request, pk):
